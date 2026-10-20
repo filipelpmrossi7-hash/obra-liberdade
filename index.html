@@ -79,6 +79,11 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1;margi
 .meta .note{width:100%;white-space:pre-wrap}
 .edit{background:none;border:2px solid var(--line);border-radius:999px;width:44px;height:44px;color:var(--muted);font-size:18px;cursor:pointer;padding:0}
 
+/* confirmação de concluído */
+.confirm{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px;padding:12px;border-radius:8px;background:var(--bg);border:2px solid var(--accent)}
+.confirm .q{font-weight:700;font-size:17px;flex:1 1 100%}
+.confirm .btn{flex:1 1 auto}
+
 /* fotos */
 .photos{grid-column:2/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
 .thumb{width:72px;height:72px;border-radius:8px;overflow:hidden;border:2px solid var(--line);padding:0;background:var(--bg);cursor:pointer;position:relative;flex:none}
@@ -101,7 +106,9 @@ form.card{background:var(--card);border:1px solid var(--line);border-radius:6px;
 label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:grid;gap:3px}
 input,select,textarea{font:inherit;font-size:17px;color:var(--fg);background:var(--bg);border:2px solid var(--line);border-radius:6px;padding:10px 12px;width:100%;min-width:0;min-height:46px}
 textarea{resize:vertical;min-height:64px}
-.actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;align-items:center}
+.hint{font-size:13px;color:var(--muted);margin-right:auto}
+.btn.danger{margin-right:0}
 .btn{font:inherit;font-size:16px;font-weight:600;border-radius:6px;padding:11px 18px;cursor:pointer;border:2px solid var(--line);background:transparent;color:var(--fg);min-height:46px}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.danger{color:var(--late);margin-right:auto}
@@ -166,17 +173,17 @@ textarea{resize:vertical;min-height:64px}
     </div>
     <label>Observação<textarea name="note" maxlength="400"></textarea></label>
     <div class="actions">
-      <button type="button" class="btn danger" data-act="delete" hidden>Excluir</button>
-      <button type="button" class="btn" data-act="cancel">Cancelar</button>
-      <button type="submit" class="btn primary">Salvar</button>
+      <button type="button" class="btn danger" data-act="delete" hidden>Excluir tarefa</button>
+      <span class="hint">Salva sozinho. Toque fora pra fechar.</span>
+      <button type="button" class="btn primary" data-act="close">✓ Pronto</button>
     </div>
   </form>
 </template>
 
 <template id="me-tpl">
   <form class="card">
-    <label>Seu nome (fica salvo neste celular)<input name="me" maxlength="30" placeholder="ex.: André" autocomplete="off"></label>
-    <div class="actions"><button type="submit" class="btn primary">Salvar</button></div>
+    <label>Seu nome (fica salvo neste celular)<input name="me" maxlength="30" placeholder="ex.: André" autocomplete="off" enterkeyhint="done"></label>
+    <div class="actions"><button type="submit" class="btn primary">✓ Pronto</button></div>
   </form>
 </template>
 
@@ -186,7 +193,7 @@ textarea{resize:vertical;min-height:64px}
   const GROUPS=["Área externa","Interno / acabamento","Hidráulica","Equipamentos","Outros"];
   const $=s=>document.querySelector(s);
   const groupsEl=$("#groups"),statusEl=$("#status");
-  let tasks=[],updatedAt=null,filter="pend",openForm=null,me="",saving=false;
+  let tasks=[],updatedAt=null,filter="pend",openForm=null,me="";
 
   try{filter=localStorage.getItem("ol-filter")||"pend";me=localStorage.getItem("ol-me")||""}catch(e){}
   document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.f===filter)));
@@ -210,19 +217,21 @@ textarea{resize:vertical;min-height:64px}
       if(!quiet)setStatus("");
     }catch(e){if(!quiet)setStatus("Não consegui carregar a lista. Verifique a internet e recarregue.",true)}
   }
-  async function save(mutate){
-    if(saving)return;
-    saving=true;setStatus("Salvando…");
-    try{
-      const r0=await fetch(API,{cache:"no-store"});
-      const d0=r0.ok?await r0.json():{tasks};
-      const next=mutate(structuredClone(d0.tasks||[]));
-      const r=await fetch(API,{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({tasks:next})});
-      if(!r.ok)throw new Error(r.status);
-      const d=await r.json();tasks=d.tasks;updatedAt=d.updatedAt;
-      render();setStatus("");
-    }catch(e){setStatus("Não deu pra salvar. Tente de novo.",true);await load(true)}
-    finally{saving=false}
+  let chain=Promise.resolve();
+  function save(mutate){            // uma gravação por vez, em fila
+    const run=async()=>{
+      setStatus("Salvando…");
+      try{
+        const r0=await fetch(API,{cache:"no-store"});
+        const d0=r0.ok?await r0.json():{tasks};
+        const next=mutate(structuredClone(d0.tasks||[]));
+        const r=await fetch(API,{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({tasks:next})});
+        if(!r.ok)throw new Error(r.status);
+        const d=await r.json();tasks=d.tasks;updatedAt=d.updatedAt;
+        render();setStatus("");
+      }catch(e){setStatus("Não deu pra salvar. Tente de novo.",true);await load(true)}
+    };
+    chain=chain.then(run,run);return chain;
   }
 
   /* ---------- render ---------- */
@@ -251,9 +260,9 @@ textarea{resize:vertical;min-height:64px}
       const u=document.createElement("div");u.className="status";u.textContent="Última alteração: "+fmtTime(updatedAt);
       groupsEl.appendChild(u);
     }
-    if(openForm&&openForm.dataset.editing){
+    if(openForm&&openForm.dataset.editing&&openForm.dataset.editing!=="new"){
       const r=groupsEl.querySelector('.task[data-id="'+openForm.dataset.editing+'"]');
-      if(r)r.after(openForm);else{openForm.remove();openForm=null}
+      if(r)r.after(openForm);else $("#form-slot").appendChild(openForm);
     }
   }
   function row(t){
@@ -261,9 +270,9 @@ textarea{resize:vertical;min-height:64px}
     const cb=document.createElement("input");cb.type="checkbox";cb.className="check";cb.checked=!!t.done;cb.id="cb-"+t.id;
     cb.setAttribute("aria-label","Concluir: "+t.title);
     cb.addEventListener("change",()=>{
-      const v=cb.checked;
-      if(!me){cb.checked=!v;askName(()=>{cb.checked=v;cb.dispatchEvent(new Event("change"))});return}
-      save(list=>{const x=list.find(y=>y.id===t.id);if(x){x.done=v;x.doneAt=v?today():null;x.by=v?(me||null):null}return list});
+      const v=cb.checked;cb.checked=!v;           // só muda depois do "Sim"
+      if(!me){askName(()=>cb.click());return}
+      confirmBox(el,t,v,cb);
     });
     const main=document.createElement("div");main.className="main";
     const title=document.createElement("div");title.className="title";title.textContent=t.title;main.appendChild(title);
@@ -277,6 +286,21 @@ textarea{resize:vertical;min-height:64px}
     const ed=document.createElement("button");ed.className="edit";ed.type="button";ed.textContent="✏️";ed.setAttribute("aria-label","Editar: "+t.title);
     ed.addEventListener("click",()=>showForm(t,el));
     el.append(cb,main,ed,photoStrip(t));return el;
+  }
+
+  function confirmBox(el,t,v,cb){
+    el.querySelector(".confirm")?.remove();
+    const box=document.createElement("div");box.className="confirm";
+    const q=document.createElement("div");q.className="q";q.textContent=v?"Concluído mesmo?":"Reabrir esta tarefa?";
+    const yes=document.createElement("button");yes.type="button";yes.className="btn primary";yes.textContent=v?"✓ Sim, concluído":"Sim, reabrir";
+    const no=document.createElement("button");no.type="button";no.className="btn";no.textContent=v?"Ainda não":"Cancelar";
+    no.addEventListener("click",()=>box.remove());
+    yes.addEventListener("click",async()=>{
+      yes.disabled=true;no.disabled=true;cb.checked=v;
+      await save(list=>{const x=list.find(y=>y.id===t.id);if(x){x.done=v;x.doneAt=v?today():null;x.by=v?(me||null):null}return list});
+    });
+    box.append(q,yes,no);el.appendChild(box);
+    yes.focus({preventScroll:true});box.scrollIntoView({block:"nearest"});
   }
 
   /* ---------- fotos ---------- */
@@ -332,36 +356,56 @@ textarea{resize:vertical;min-height:64px}
     document.body.appendChild(lb);
   }
 
-  /* ---------- formulário ---------- */
+  /* ---------- formulário: abre, edita, fecha; salva sozinho ---------- */
+  function closeForm(){if(openForm&&openForm._close)openForm._close();else if(openForm){openForm.remove();openForm=null}}
   function showForm(t,anchor){
-    if(openForm)openForm.remove();
+    if(openForm&&openForm.dataset.editing===(t?t.id:"new")){closeForm();return}   // segundo toque no lápis fecha
+    closeForm();
     const f=$("#form-tpl").content.firstElementChild.cloneNode(true);
     const del=f.querySelector("[data-act=delete]");
-    if(t){f.title.value=t.title;f.group.value=t.group||"Outros";f.owner.value=t.owner||"";f.due.value=t.due||"";f.dep.value=t.dep||"";f.note.value=t.note||"";del.hidden=false;f.dataset.editing=t.id}
-    f.querySelector("[data-act=cancel]").addEventListener("click",()=>{f.remove();openForm=null});
+    let id=t?t.id:null,created=false,dirty=false,timer=null,closed=false;
+    if(t){f.title.value=t.title;f.group.value=t.group||"Outros";f.owner.value=t.owner||"";f.due.value=t.due||"";f.dep.value=t.dep||"";f.note.value=t.note||"";del.hidden=false}
+    f.dataset.editing=t?t.id:"new";
+    const read=()=>({title:f.title.value.trim(),group:f.group.value,owner:f.owner.value,due:f.due.value||null,dep:f.dep.value.trim()||null,note:f.note.value.trim()||null});
+    async function persist(){
+      clearTimeout(timer);timer=null;
+      const data=read();if(!data.title){dirty=true;return}
+      dirty=false;
+      if(id)await save(list=>{const x=list.find(y=>y.id===id);if(x)Object.assign(x,data);return list});
+      else{const nid="t"+Date.now().toString(36);id=nid;created=true;f.dataset.editing=nid;await save(list=>{list.push({...data,id:nid,done:false,doneAt:null,by:null,photos:[]});return list})}
+    }
+    const queue=()=>{dirty=true;clearTimeout(timer);timer=setTimeout(persist,500)};
+    f.addEventListener("input",queue);f.addEventListener("change",queue);
+    f.addEventListener("submit",e=>{e.preventDefault();f._close()});
+    f.querySelector("[data-act=close]").addEventListener("click",()=>f._close());
     del.addEventListener("click",async()=>{
-      if(del.dataset.armed!=="1"){del.dataset.armed="1";del.textContent="Confirmar exclusão";return}
-      f.remove();openForm=null;
-      await save(list=>list.filter(y=>y.id!==t.id));
+      if(del.dataset.armed!=="1"){del.dataset.armed="1";del.textContent="Confirmar: excluir";return}
+      closed=true;f.remove();openForm=null;
+      if(id)await save(list=>list.filter(y=>y.id!==id));
     });
-    f.addEventListener("submit",async e=>{
-      e.preventDefault();
-      const data={title:f.title.value.trim(),group:f.group.value,owner:f.owner.value,due:f.due.value||null,dep:f.dep.value.trim()||null,note:f.note.value.trim()||null};
-      if(!data.title)return;
-      f.querySelector("[type=submit]").disabled=true;
+    f._close=async()=>{
+      if(closed)return;closed=true;
       f.remove();openForm=null;
-      if(t)await save(list=>{const x=list.find(y=>y.id===t.id);if(x)Object.assign(x,data);return list});
-      else await save(list=>{list.push({...data,id:"t"+Date.now().toString(36),done:false,doneAt:null,by:null});return list});
-    });
+      if(dirty||timer)await persist();
+    };
     if(t)anchor.after(f);else $("#form-slot").appendChild(f);
-    openForm=f;f.title.focus();f.scrollIntoView({block:"nearest"});
+    openForm=f;f.title.focus({preventScroll:true});f.scrollIntoView({block:"nearest"});
   }
+  // toque fora do formulário fecha (e salva)
+  document.addEventListener("pointerdown",e=>{
+    if(!openForm||openForm.contains(e.target))return;
+    if(e.target.closest(".edit,#add-btn,#me-btn"))return;
+    closeForm();
+  });
   $("#add-btn").addEventListener("click",()=>{if(filter==="done")document.querySelector('.chip[data-f="pend"]').click();showForm(null,null);window.scrollTo({top:0})});
   function askName(after){
     if(openForm)openForm.remove();
     const f=$("#me-tpl").content.firstElementChild.cloneNode(true);f.me.value=me;
     if(!me)f.querySelector("label").firstChild.textContent="Antes de começar, seu nome (só uma vez)";
-    f.addEventListener("submit",e=>{e.preventDefault();me=f.me.value.trim();try{localStorage.setItem("ol-me",me)}catch(x){}updateMe();f.remove();openForm=null;if(me&&after)after()});
+    const done=()=>{if(!f.isConnected)return;me=f.me.value.trim();try{localStorage.setItem("ol-me",me)}catch(x){}updateMe();f.remove();openForm=null;if(me&&after)after()};
+    f.addEventListener("submit",e=>{e.preventDefault();done()});
+    f.me.addEventListener("blur",()=>{if(f.me.value.trim())setTimeout(done,150)});
+    f._close=done;
     $("#form-slot").appendChild(f);openForm=f;f.me.focus();f.scrollIntoView({block:"center"});
   }
   $("#me-btn").addEventListener("click",()=>askName());
