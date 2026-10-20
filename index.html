@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Obra Liberdade</title>
+<meta name="theme-color" content="#edeae4">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23e2631b'/%3E%3Cpath d='M18 34l10 10 18-22' stroke='%23fff' stroke-width='7' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#edeae4;--card:#f8f6f2;--fg:#1f1d1a;--muted:#6e675e;--line:#d6d0c6;
+  --accent:#e2631b;--accent-ink:#fff;--done:#2f7d4f;--late:#b3261e;--rain:#2b6cb0;--rain-bg:#dde9f6;
+  --display:"Barlow Semi Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",Arial,Helvetica,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#1b1a18;--card:#262421;--fg:#efebe4;--muted:#a39b90;--line:#3b3833;
+    --accent:#f0742d;--accent-ink:#1b1a18;--done:#7cc598;--late:#f08a83;--rain:#8fbcf0;--rain-bg:#1f2d3d;color-scheme:dark}
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.4;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+.wrap{max-width:720px;margin:0 auto}
+header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:22px 0 10px;border-bottom:3px solid var(--fg)}
+h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1;margin:0;letter-spacing:-.01em}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+.tally{display:flex;gap:18px;font-family:var(--display);font-variant-numeric:tabular-nums}
+.tally div{text-align:right}
+.tally b{display:block;font-size:26px;line-height:1;font-weight:700}
+.tally span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tally .ok b{color:var(--done)}
+
+.weather{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
+.weather::-webkit-scrollbar{display:none}
+.day{flex:1 0 auto;min-width:68px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:7px 8px;text-align:center;font-variant-numeric:tabular-nums}
+.day.rain{background:var(--rain-bg);border-color:transparent}
+.day .d{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.day .i{font-size:20px;line-height:1.3}
+.day .t{font-family:var(--display);font-weight:600;font-size:15px}
+.day .p{font-size:11.5px;color:var(--muted)}
+.day.rain .p{color:var(--rain);font-weight:600}
+.weather-note{font-size:12px;color:var(--muted);padding:2px 0 6px}
+
+.filters{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 6px;align-items:center}
+.chip{border:1px solid var(--line);background:transparent;color:var(--fg);font:inherit;font-size:13px;padding:5px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.me{margin-left:auto;font-size:12.5px;color:var(--muted);background:none;border:0;cursor:pointer;font-family:inherit;text-decoration:underline dotted}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.group{margin-top:22px}
+.group h2{font-family:var(--display);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;display:flex;justify-content:space-between;font-weight:600}
+.group h2 span{font-variant-numeric:tabular-nums}
+.list{display:flex;flex-direction:column;gap:6px}
+.task{background:var(--card);border:1px solid var(--line);border-radius:6px;display:grid;grid-template-columns:auto 1fr auto;gap:0 12px;align-items:start;padding:10px 12px}
+.task.done{opacity:.62}
+.task.done .title{text-decoration:line-through}
+.check{width:24px;height:24px;margin-top:0;accent-color:var(--done);cursor:pointer}
+.main{min-width:0}
+.title{font-weight:500;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:5px;font-size:12.5px;color:var(--muted)}
+.meta .who{font-weight:600;color:var(--fg)}
+.meta .due{font-variant-numeric:tabular-nums}
+.meta .due.late{color:var(--late);font-weight:600}
+.meta .note{width:100%;white-space:pre-wrap}
+.edit{background:none;border:0;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;padding:2px 4px;text-transform:uppercase;letter-spacing:.06em}
+
+form.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px;display:grid;gap:8px;margin-top:8px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:grid;gap:3px}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:8px 10px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:56px}
+.actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.btn{font:inherit;font-weight:600;border-radius:4px;padding:9px 16px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--late);margin-right:auto}
+.btn:disabled{opacity:.5;cursor:default}
+
+.add-bar{position:fixed;left:0;right:0;bottom:0;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  background:linear-gradient(transparent,var(--bg) 40%);display:flex;justify-content:center;pointer-events:none}
+.add-bar .btn{pointer-events:auto;box-shadow:0 4px 14px rgba(0,0,0,.18);font-family:var(--display);font-size:17px;padding:12px 22px}
+
+.empty{padding:40px 12px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:6px;margin-top:18px}
+.status{font-size:12.5px;color:var(--muted);padding:6px 0;min-height:1.6em}
+.status.err{color:var(--late)}
+[hidden]{display:none!important}
+@media (max-width:480px){h1{font-size:26px}.row{grid-template-columns:1fr}.tally{gap:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <p class="eyebrow">Controle de tarefas</p>
+      <h1>Obra Liberdade</h1>
+    </div>
+    <div class="tally">
+      <div><b id="n-pend">–</b><span>pendentes</span></div>
+      <div class="ok"><b id="n-done">–</b><span>feitas</span></div>
+    </div>
+  </header>
+
+  <div class="weather" id="weather" aria-label="Previsão do tempo na Liberdade"></div>
+  <div class="weather-note" id="weather-note">Carregando previsão para a Liberdade…</div>
+
+  <div class="filters" role="group" aria-label="Filtro">
+    <button class="chip" data-f="pend" aria-pressed="true">Pendentes</button>
+    <button class="chip" data-f="all" aria-pressed="false">Todas</button>
+    <button class="chip" data-f="done" aria-pressed="false">Feitas</button>
+    <button class="me" id="me-btn" type="button">Quem sou eu?</button>
+  </div>
+
+  <div id="status" class="status"></div>
+  <div id="form-slot"></div>
+  <div id="groups"></div>
+</div>
+
+<div class="add-bar"><button class="btn primary" id="add-btn" type="button">+ Nova tarefa</button></div>
+
+<template id="form-tpl">
+  <form class="card">
+    <label>Tarefa<input name="title" required maxlength="140" autocomplete="off"></label>
+    <div class="row">
+      <label>Frente<select name="group">
+        <option>Área externa</option><option>Interno / acabamento</option><option>Hidráulica</option><option>Equipamentos</option><option>Outros</option>
+      </select></label>
+      <label>Responsável<select name="owner">
+        <option value="">—</option><option>André</option><option>Andrew</option><option>Filipe</option><option>Empreiteiro</option>
+      </select></label>
+    </div>
+    <div class="row">
+      <label>Prazo<input name="due" type="date"></label>
+      <label>Depende de<input name="dep" maxlength="80" placeholder="ex.: chegada da calha"></label>
+    </div>
+    <label>Observação<textarea name="note" maxlength="400"></textarea></label>
+    <div class="actions">
+      <button type="button" class="btn danger" data-act="delete" hidden>Excluir</button>
+      <button type="button" class="btn" data-act="cancel">Cancelar</button>
+      <button type="submit" class="btn primary">Salvar</button>
+    </div>
+  </form>
+</template>
+
+<template id="me-tpl">
+  <form class="card">
+    <label>Seu nome (fica salvo neste celular)<input name="me" maxlength="30" placeholder="ex.: André" autocomplete="off"></label>
+    <div class="actions"><button type="submit" class="btn primary">Salvar</button></div>
+  </form>
+</template>
+
+<script>
+(function(){
+  const API="/api/tasks";
+  const GROUPS=["Área externa","Interno / acabamento","Hidráulica","Equipamentos","Outros"];
+  const $=s=>document.querySelector(s);
+  const groupsEl=$("#groups"),statusEl=$("#status");
+  let tasks=[],updatedAt=null,filter="pend",openForm=null,me="",saving=false;
+
+  try{filter=localStorage.getItem("ol-filter")||"pend";me=localStorage.getItem("ol-me")||""}catch(e){}
+  document.querySelectorAll(".chip").forEach(c=>c.setAttribute("aria-pressed",String(c.dataset.f===filter)));
+  updateMe();
+
+  const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10)};
+  const fmt=d=>{if(!d)return"";const [y,m,dd]=d.split("-");return `${dd}/${m}`};
+  const fmtTime=iso=>{if(!iso)return"";const d=new Date(iso);return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})};
+
+  function setStatus(msg,err){statusEl.textContent=msg||"";statusEl.className="status"+(err?" err":"")}
+  function updateMe(){$("#me-btn").textContent=me?("Você: "+me):"Quem sou eu?"}
+
+  /* ---------- dados ---------- */
+  async function load(quiet){
+    try{
+      const r=await fetch(API,{cache:"no-store"});
+      if(!r.ok)throw new Error(r.status);
+      const d=await r.json();
+      tasks=d.tasks||[];updatedAt=d.updatedAt||null;
+      render();
+      if(!quiet)setStatus("");
+    }catch(e){if(!quiet)setStatus("Não consegui carregar a lista. Verifique a internet e recarregue.",true)}
+  }
+  async function save(mutate){
+    if(saving)return;
+    saving=true;setStatus("Salvando…");
+    try{
+      const r0=await fetch(API,{cache:"no-store"});
+      const d0=r0.ok?await r0.json():{tasks};
+      const next=mutate(structuredClone(d0.tasks||[]));
+      const r=await fetch(API,{method:"PUT",headers:{"content-type":"application/json"},body:JSON.stringify({tasks:next})});
+      if(!r.ok)throw new Error(r.status);
+      const d=await r.json();tasks=d.tasks;updatedAt=d.updatedAt;
+      render();setStatus("");
+    }catch(e){setStatus("Não deu pra salvar. Tente de novo.",true);await load(true)}
+    finally{saving=false}
+  }
+
+  /* ---------- render ---------- */
+  function render(){
+    const pend=tasks.filter(t=>!t.done),done=tasks.filter(t=>t.done);
+    $("#n-pend").textContent=pend.length;$("#n-done").textContent=done.length;
+    const show=filter==="all"?tasks:filter==="done"?done:pend;
+    groupsEl.innerHTML="";
+    if(!show.length){
+      const e=document.createElement("div");e.className="empty";
+      e.textContent=!tasks.length?"Nenhuma tarefa ainda.":filter==="pend"?"Tudo feito por aqui.":"Nada marcado como feito ainda.";
+      groupsEl.appendChild(e);
+    }
+    for(const g of GROUPS){
+      const items=show.filter(t=>(t.group||"Outros")===g).sort((a,b)=>(a.done-b.done)||(a.due||"9").localeCompare(b.due||"9"));
+      if(!items.length)continue;
+      const sec=document.createElement("section");sec.className="group";
+      const h=document.createElement("h2");h.textContent=g;
+      const c=document.createElement("span");c.textContent=items.filter(t=>!t.done).length+" pend.";h.appendChild(c);
+      sec.appendChild(h);
+      const list=document.createElement("div");list.className="list";
+      for(const t of items)list.appendChild(row(t));
+      sec.appendChild(list);groupsEl.appendChild(sec);
+    }
+    if(updatedAt){
+      const u=document.createElement("div");u.className="status";u.textContent="Última alteração: "+fmtTime(updatedAt);
+      groupsEl.appendChild(u);
+    }
+    if(openForm&&openForm.dataset.editing){
+      const r=groupsEl.querySelector('.task[data-id="'+openForm.dataset.editing+'"]');
+      if(r)r.after(openForm);else{openForm.remove();openForm=null}
+    }
+  }
+  function row(t){
+    const el=document.createElement("div");el.className="task"+(t.done?" done":"");el.dataset.id=t.id;
+    const cb=document.createElement("input");cb.type="checkbox";cb.className="check";cb.checked=!!t.done;cb.id="cb-"+t.id;
+    cb.setAttribute("aria-label","Concluir: "+t.title);
+    cb.addEventListener("change",()=>{
+      const v=cb.checked;
+      save(list=>{const x=list.find(y=>y.id===t.id);if(x){x.done=v;x.doneAt=v?today():null;x.by=v?(me||null):null}return list});
+    });
+    const main=document.createElement("div");main.className="main";
+    const title=document.createElement("div");title.className="title";title.textContent=t.title;main.appendChild(title);
+    const meta=document.createElement("div");meta.className="meta";
+    if(t.owner){const s=document.createElement("span");s.className="who";s.textContent=t.owner;meta.appendChild(s)}
+    if(t.due){const late=!t.done&&t.due<today();const s=document.createElement("span");s.className="due"+(late?" late":"");s.textContent=(late?"atrasado · ":"prazo ")+fmt(t.due);meta.appendChild(s)}
+    if(t.dep){const s=document.createElement("span");s.textContent="aguarda: "+t.dep;meta.appendChild(s)}
+    if(t.done&&t.doneAt){const s=document.createElement("span");s.textContent="feito "+fmt(t.doneAt)+(t.by?" por "+t.by:"");meta.appendChild(s)}
+    if(t.note){const s=document.createElement("span");s.className="note";s.textContent=t.note;meta.appendChild(s)}
+    if(meta.childNodes.length)main.appendChild(meta);
+    const ed=document.createElement("button");ed.className="edit";ed.type="button";ed.textContent="editar";
+    ed.addEventListener("click",()=>showForm(t,el));
+    el.append(cb,main,ed);return el;
+  }
+
+  /* ---------- formulário ---------- */
+  function showForm(t,anchor){
+    if(openForm)openForm.remove();
+    const f=$("#form-tpl").content.firstElementChild.cloneNode(true);
+    const del=f.querySelector("[data-act=delete]");
+    if(t){f.title.value=t.title;f.group.value=t.group||"Outros";f.owner.value=t.owner||"";f.due.value=t.due||"";f.dep.value=t.dep||"";f.note.value=t.note||"";del.hidden=false;f.dataset.editing=t.id}
+    f.querySelector("[data-act=cancel]").addEventListener("click",()=>{f.remove();openForm=null});
+    del.addEventListener("click",async()=>{
+      if(del.dataset.armed!=="1"){del.dataset.armed="1";del.textContent="Confirmar exclusão";return}
+      f.remove();openForm=null;
+      await save(list=>list.filter(y=>y.id!==t.id));
+    });
+    f.addEventListener("submit",async e=>{
+      e.preventDefault();
+      const data={title:f.title.value.trim(),group:f.group.value,owner:f.owner.value,due:f.due.value||null,dep:f.dep.value.trim()||null,note:f.note.value.trim()||null};
+      if(!data.title)return;
+      f.querySelector("[type=submit]").disabled=true;
+      f.remove();openForm=null;
+      if(t)await save(list=>{const x=list.find(y=>y.id===t.id);if(x)Object.assign(x,data);return list});
+      else await save(list=>{list.push({...data,id:"t"+Date.now().toString(36),done:false,doneAt:null,by:null});return list});
+    });
+    if(t)anchor.after(f);else $("#form-slot").appendChild(f);
+    openForm=f;f.title.focus();f.scrollIntoView({block:"nearest"});
+  }
+  $("#add-btn").addEventListener("click",()=>{if(filter==="done")document.querySelector('.chip[data-f="pend"]').click();showForm(null,null);window.scrollTo({top:0})});
+  $("#me-btn").addEventListener("click",()=>{
+    if(openForm)openForm.remove();
+    const f=$("#me-tpl").content.firstElementChild.cloneNode(true);f.me.value=me;
+    f.addEventListener("submit",e=>{e.preventDefault();me=f.me.value.trim();try{localStorage.setItem("ol-me",me)}catch(x){}updateMe();f.remove();openForm=null});
+    $("#form-slot").appendChild(f);openForm=f;f.me.focus();
+  });
+  document.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
+    filter=c.dataset.f;try{localStorage.setItem("ol-filter",filter)}catch(e){}
+    document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x===c)));render();
+  }));
+
+  /* ---------- tempo (Open-Meteo, Liberdade/SP) ---------- */
+  const WMO={0:"☀️",1:"🌤️",2:"⛅",3:"☁️",45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌧️",61:"🌧️",63:"🌧️",65:"🌧️",80:"🌦️",81:"🌧️",82:"⛈️",95:"⛈️",96:"⛈️",99:"⛈️"};
+  async function weather(){
+    const el=$("#weather"),note=$("#weather-note");
+    try{
+      const u="https://api.open-meteo.com/v1/forecast?latitude=-23.558&longitude=-46.635&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=America%2FSao_Paulo&forecast_days=6";
+      const r=await fetch(u);if(!r.ok)throw 0;const d=(await r.json()).daily;
+      el.innerHTML="";
+      const names=["dom","seg","ter","qua","qui","sáb"];
+      d.time.forEach((day,i)=>{
+        const prob=d.precipitation_probability_max[i]??0,mm=d.precipitation_sum[i]??0;
+        const rain=prob>=60||mm>=5;
+        const c=document.createElement("div");c.className="day"+(rain?" rain":"");
+        const dt=new Date(day+"T12:00:00");
+        c.innerHTML=`<div class="d">${i===0?"hoje":names[dt.getDay()]} ${fmt(day)}</div><div class="i">${WMO[d.weather_code[i]]||"🌡️"}</div><div class="t">${Math.round(d.temperature_2m_max[i])}° <span style="color:var(--muted);font-weight:400">${Math.round(d.temperature_2m_min[i])}°</span></div><div class="p">${prob}% chuva${mm>=1?" · "+Math.round(mm)+"mm":""}</div>`;
+        el.appendChild(c);
+      });
+      const rainy=d.time.filter((_,i)=>(d.precipitation_probability_max[i]??0)>=60||(d.precipitation_sum[i]??0)>=5);
+      note.textContent=rainy.length?"Chuva provável: "+rainy.map(fmt).join(", ")+". Vale segurar serviço externo nesses dias.":"Sem chuva relevante nos próximos dias.";
+    }catch(e){note.textContent="Previsão indisponível no momento."}
+  }
+
+  load();weather();
+  setInterval(()=>load(true),20000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden){load(true);weather()}});
+})();
+</script>
+</body>
+</html>
