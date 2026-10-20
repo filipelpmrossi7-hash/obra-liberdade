@@ -174,7 +174,7 @@ textarea{resize:vertical;min-height:64px}
     <label>Observação<textarea name="note" maxlength="400"></textarea></label>
     <div class="actions">
       <button type="button" class="btn danger" data-act="delete" hidden>Excluir tarefa</button>
-      <span class="hint">Salva sozinho. Toque fora pra fechar.</span>
+      <span class="hint">Salva sozinho.</span>
       <button type="button" class="btn primary" data-act="close">✓ Pronto</button>
     </div>
   </form>
@@ -391,12 +391,6 @@ textarea{resize:vertical;min-height:64px}
     if(t)anchor.after(f);else $("#form-slot").appendChild(f);
     openForm=f;if(!t)f.title.focus({preventScroll:true});f.scrollIntoView({block:"nearest"});
   }
-  // toque fora do formulário fecha (e salva)
-  document.addEventListener("pointerdown",e=>{
-    if(!openForm||openForm.contains(e.target))return;
-    if(e.target.closest(".edit,#add-btn,#me-btn"))return;
-    closeForm();
-  });
   $("#add-btn").addEventListener("click",()=>{if(filter==="done")document.querySelector('.chip[data-f="pend"]').click();showForm(null,null);window.scrollTo({top:0})});
   function askName(after){
     if(openForm)openForm.remove();
