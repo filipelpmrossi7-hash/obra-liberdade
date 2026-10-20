@@ -70,7 +70,11 @@ function sanitize(t) {
     note: s(t.note, 400) || null,
     done: !!t.done,
     doneAt: /^\d{4}-\d{2}-\d{2}$/.test(t.doneAt || "") ? t.doneAt : null,
-    by: s(t.by, 40) || null
+    by: s(t.by, 40) || null,
+    photos: Array.isArray(t.photos)
+      ? t.photos.filter((p) => p && /^[A-Za-z0-9_-]{1,40}$/.test(p.id || "")).slice(0, 50)
+          .map((p) => ({ id: p.id, at: s(p.at, 40) || null, by: s(p.by, 40) || null }))
+      : []
   };
 }
 

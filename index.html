@@ -79,6 +79,23 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1;margi
 .meta .note{width:100%;white-space:pre-wrap}
 .edit{background:none;border:2px solid var(--line);border-radius:999px;width:44px;height:44px;color:var(--muted);font-size:18px;cursor:pointer;padding:0}
 
+/* fotos */
+.photos{grid-column:2/-1;display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.thumb{width:72px;height:72px;border-radius:8px;overflow:hidden;border:2px solid var(--line);padding:0;background:var(--bg);cursor:pointer;position:relative;flex:none}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb.sending{opacity:.6}
+.thumb.sending::after{content:"";position:absolute;inset:0;margin:auto;width:22px;height:22px;border:3px solid var(--accent);border-top-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cam{width:72px;height:72px;border-radius:8px;border:2px dashed var(--line);background:transparent;color:var(--muted);font-size:26px;cursor:pointer;flex:none;display:grid;place-items:center;line-height:1}
+.cam small{font-size:11px;font-weight:600;letter-spacing:.04em;margin-top:-2px}
+.cam:active{border-color:var(--accent);color:var(--accent)}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:50;display:flex;flex-direction:column;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.lightbox img{flex:1;min-height:0;width:100%;object-fit:contain}
+.lightbox .cap{color:#fff;text-align:center;padding:10px 16px;font-size:15px}
+.lightbox .lb-actions{display:flex;gap:10px;justify-content:center;padding:4px 16px 16px}
+.lightbox .btn{color:#fff;border-color:#666}
+.lightbox .btn.danger{color:#ff9d96;margin:0}
+
 form.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px;display:grid;gap:8px;margin-top:8px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:grid;gap:3px}
@@ -245,6 +262,7 @@ textarea{resize:vertical;min-height:64px}
     cb.setAttribute("aria-label","Concluir: "+t.title);
     cb.addEventListener("change",()=>{
       const v=cb.checked;
+      if(!me){cb.checked=!v;askName(()=>{cb.checked=v;cb.dispatchEvent(new Event("change"))});return}
       save(list=>{const x=list.find(y=>y.id===t.id);if(x){x.done=v;x.doneAt=v?today():null;x.by=v?(me||null):null}return list});
     });
     const main=document.createElement("div");main.className="main";
@@ -258,7 +276,60 @@ textarea{resize:vertical;min-height:64px}
     if(meta.childNodes.length)main.appendChild(meta);
     const ed=document.createElement("button");ed.className="edit";ed.type="button";ed.textContent="✏️";ed.setAttribute("aria-label","Editar: "+t.title);
     ed.addEventListener("click",()=>showForm(t,el));
-    el.append(cb,main,ed);return el;
+    el.append(cb,main,ed,photoStrip(t));return el;
+  }
+
+  /* ---------- fotos ---------- */
+  function photoStrip(t){
+    const strip=document.createElement("div");strip.className="photos";
+    for(const p of (t.photos||[])){
+      const b=document.createElement("button");b.type="button";b.className="thumb";
+      const img=document.createElement("img");img.loading="lazy";img.alt="Foto da tarefa "+t.title;img.src=`/api/photo/${t.id}/${p.id}`;
+      b.appendChild(img);b.addEventListener("click",()=>openPhoto(t,p));strip.appendChild(b);
+    }
+    const cam=document.createElement("button");cam.type="button";cam.className="cam";cam.innerHTML="📷<small>FOTO</small>";cam.setAttribute("aria-label","Tirar foto: "+t.title);
+    const inp=document.createElement("input");inp.type="file";inp.accept="image/*";inp.capture="environment";inp.hidden=true;inp.id="file-"+t.id;
+    cam.addEventListener("click",()=>{if(!me){askName();return}inp.click()});
+    inp.addEventListener("change",()=>{if(inp.files[0])sendPhoto(t,inp.files[0],strip,cam)});
+    strip.append(cam,inp);
+    return strip;
+  }
+  async function shrink(file){
+    let bmp;
+    try{bmp=await createImageBitmap(file,{imageOrientation:"from-image"})}
+    catch(e){bmp=await new Promise((ok,err)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=err;i.src=URL.createObjectURL(file)})}
+    const MAX=1280,s=Math.min(1,MAX/Math.max(bmp.width,bmp.height));
+    const c=document.createElement("canvas");c.width=Math.round(bmp.width*s);c.height=Math.round(bmp.height*s);
+    c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+    return new Promise(ok=>c.toBlob(ok,"image/jpeg",0.78));
+  }
+  async function sendPhoto(t,file,strip,cam){
+    const ph=document.createElement("div");ph.className="thumb sending";
+    const img=document.createElement("img");img.src=URL.createObjectURL(file);ph.appendChild(img);strip.insertBefore(ph,cam);
+    try{
+      const blob=await shrink(file);
+      const r=await fetch(`/api/photo?task=${encodeURIComponent(t.id)}&by=${encodeURIComponent(me||"")}`,{method:"POST",headers:{"content-type":"image/jpeg"},body:blob});
+      if(!r.ok)throw new Error(r.status);
+      const d=await r.json();tasks=d.tasks;updatedAt=d.updatedAt;render();setStatus("");
+    }catch(e){ph.remove();setStatus("Não deu pra enviar a foto. Tente de novo.",true)}
+  }
+  function openPhoto(t,p){
+    const lb=document.createElement("div");lb.className="lightbox";lb.setAttribute("role","dialog");
+    const img=document.createElement("img");img.src=`/api/photo/${t.id}/${p.id}`;img.alt=t.title;
+    const cap=document.createElement("div");cap.className="cap";cap.textContent=t.title+" · "+fmtTime(p.at)+(p.by?" · "+p.by:"");
+    const acts=document.createElement("div");acts.className="lb-actions";
+    const del=document.createElement("button");del.type="button";del.className="btn danger";del.textContent="Excluir";
+    del.addEventListener("click",async()=>{
+      if(del.dataset.armed!=="1"){del.dataset.armed="1";del.textContent="Confirmar exclusão";return}
+      del.disabled=true;
+      try{const r=await fetch(`/api/photo/${t.id}/${p.id}`,{method:"DELETE"});if(!r.ok)throw 0;const d=await r.json();tasks=d.tasks;updatedAt=d.updatedAt;render();lb.remove()}
+      catch(e){del.disabled=false;del.textContent="Não deu. Tentar de novo"}
+    });
+    const close=document.createElement("button");close.type="button";close.className="btn";close.textContent="Fechar";
+    close.addEventListener("click",()=>lb.remove());
+    acts.append(del,close);lb.append(img,cap,acts);
+    lb.addEventListener("click",e=>{if(e.target===img||e.target===lb)lb.remove()});
+    document.body.appendChild(lb);
   }
 
   /* ---------- formulário ---------- */
@@ -286,12 +357,15 @@ textarea{resize:vertical;min-height:64px}
     openForm=f;f.title.focus();f.scrollIntoView({block:"nearest"});
   }
   $("#add-btn").addEventListener("click",()=>{if(filter==="done")document.querySelector('.chip[data-f="pend"]').click();showForm(null,null);window.scrollTo({top:0})});
-  $("#me-btn").addEventListener("click",()=>{
+  function askName(after){
     if(openForm)openForm.remove();
     const f=$("#me-tpl").content.firstElementChild.cloneNode(true);f.me.value=me;
-    f.addEventListener("submit",e=>{e.preventDefault();me=f.me.value.trim();try{localStorage.setItem("ol-me",me)}catch(x){}updateMe();f.remove();openForm=null});
-    $("#form-slot").appendChild(f);openForm=f;f.me.focus();
-  });
+    if(!me)f.querySelector("label").firstChild.textContent="Antes de começar, seu nome (só uma vez)";
+    f.addEventListener("submit",e=>{e.preventDefault();me=f.me.value.trim();try{localStorage.setItem("ol-me",me)}catch(x){}updateMe();f.remove();openForm=null;if(me&&after)after()});
+    $("#form-slot").appendChild(f);openForm=f;f.me.focus();f.scrollIntoView({block:"center"});
+  }
+  $("#me-btn").addEventListener("click",()=>askName());
+  if(!me)askName();
   document.querySelectorAll(".chip").forEach(c=>c.addEventListener("click",()=>{
     filter=c.dataset.f;try{localStorage.setItem("ol-filter",filter)}catch(e){}
     document.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x===c)));render();
