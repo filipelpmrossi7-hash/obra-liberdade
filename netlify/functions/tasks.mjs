@@ -11,7 +11,7 @@ const SEED = {
     { id: "t01", title: "Banco da área externa", group: "Área externa", owner: "", due: null, dep: null, note: null, done: false, doneAt: null, by: null },
     { id: "t02", title: "Rejunte do piso da área externa", group: "Área externa", owner: "", due: null, dep: null, note: null, done: false, doneAt: null, by: null },
     { id: "t03", title: "Telha da marquise da frente", group: "Área externa", owner: "", due: null, dep: "chegada da calha", note: null, done: false, doneAt: null, by: null },
-    { id: "t04", title: "Ralo linear na entrada da Misoya", group: "Área externa", owner: "André", due: null, dep: null, note: "Pedir 2m. Ponto mais baixo fica 50 cm à esquerda da porta de entrada.", done: false, doneAt: null, by: null },
+    { id: "t04", title: "Ralo linear na entrada da Misoya", group: "Área externa", owner: "", due: null, dep: "André pedir o ralo (2m)", note: "Ponto mais baixo fica 50 cm à esquerda da porta de entrada.", done: false, doneAt: null, by: null },
     { id: "t05", title: "Porcelanato da clausura (refazer)", group: "Interno / acabamento", owner: "", due: null, dep: null, note: null, done: false, doneAt: null, by: null },
     { id: "t06", title: "Passar máquina para encerar o piso", group: "Interno / acabamento", owner: "", due: null, dep: null, note: null, done: false, doneAt: null, by: null },
     { id: "t07", title: "Torneiras dos banheiros", group: "Hidráulica", owner: "", due: null, dep: null, note: null, done: false, doneAt: null, by: null },

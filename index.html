@@ -34,47 +34,57 @@ h1{font-family:var(--display);font-weight:700;font-size:30px;line-height:1;margi
 .tally span{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .tally .ok b{color:var(--done)}
 
-.weather{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}
+.weather{display:flex;gap:6px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .weather::-webkit-scrollbar{display:none}
-.day{flex:1 0 auto;min-width:68px;background:var(--card);border:1px solid var(--line);border-radius:6px;padding:7px 8px;text-align:center;font-variant-numeric:tabular-nums}
+.day{flex:1 0 auto;min-width:92px;background:var(--card);border:2px solid var(--line);border-radius:8px;padding:8px 8px 9px;text-align:center;font-variant-numeric:tabular-nums;font-family:var(--body);color:var(--fg);cursor:pointer}
 .day.rain{background:var(--rain-bg);border-color:transparent}
-.day .d{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.day .i{font-size:20px;line-height:1.3}
-.day .t{font-family:var(--display);font-weight:600;font-size:15px}
-.day .p{font-size:11.5px;color:var(--muted)}
-.day.rain .p{color:var(--rain);font-weight:600}
-.weather-note{font-size:12px;color:var(--muted);padding:2px 0 6px}
+.day.open{border-color:var(--accent)}
+.day .d{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.day .i{font-size:30px;line-height:1.25}
+.day .t{font-family:var(--display);font-weight:700;font-size:18px}
+.day .p{font-size:12px;color:var(--muted)}
+.day .w{font-size:13px;margin-top:4px;color:var(--muted)}
+.day.rain .w{color:var(--rain);font-weight:700}
+.weather-note{font-size:13px;color:var(--muted);padding:2px 0 6px}
+.hourly{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:2px 0 8px}
+.hourly .hh{font-size:15px;margin-bottom:8px}
+.bars{display:flex;gap:2px;height:72px;align-items:flex-end}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;height:100%;position:relative}
+.bar i{display:block;background:var(--line);border-radius:2px 2px 0 0}
+.bar.rain i{background:var(--rain)}
+.bar span{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:10px;color:var(--muted)}
+.hourly .hl{font-size:12px;color:var(--muted);margin-top:22px}
 
-.filters{display:flex;gap:6px;flex-wrap:wrap;padding:8px 0 6px;align-items:center}
-.chip{border:1px solid var(--line);background:transparent;color:var(--fg);font:inherit;font-size:13px;padding:5px 12px;border-radius:999px;cursor:pointer}
+.filters{display:flex;gap:8px;flex-wrap:wrap;padding:10px 0 8px;align-items:center}
+.chip{border:2px solid var(--line);background:transparent;color:var(--fg);font:inherit;font-size:16px;font-weight:600;padding:9px 18px;border-radius:999px;cursor:pointer;min-height:44px}
 .chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
-.me{margin-left:auto;font-size:12.5px;color:var(--muted);background:none;border:0;cursor:pointer;font-family:inherit;text-decoration:underline dotted}
+.me{margin-left:auto;font-size:15px;color:var(--fg);background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;font-family:inherit;min-height:44px}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-.group{margin-top:22px}
-.group h2{font-family:var(--display);font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 8px;display:flex;justify-content:space-between;font-weight:600}
-.group h2 span{font-variant-numeric:tabular-nums}
-.list{display:flex;flex-direction:column;gap:6px}
-.task{background:var(--card);border:1px solid var(--line);border-radius:6px;display:grid;grid-template-columns:auto 1fr auto;gap:0 12px;align-items:start;padding:10px 12px}
-.task.done{opacity:.62}
+.group{margin-top:24px}
+.group h2{font-family:var(--display);font-size:17px;letter-spacing:.06em;text-transform:uppercase;color:var(--fg);margin:0 0 8px;display:flex;justify-content:space-between;font-weight:700;border-bottom:2px solid var(--line);padding-bottom:4px}
+.group h2 span{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px}
+.list{display:flex;flex-direction:column;gap:8px}
+.task{background:var(--card);border:2px solid var(--line);border-radius:10px;display:grid;grid-template-columns:auto 1fr auto;gap:0 14px;align-items:center;padding:14px 14px}
+.task.done{opacity:.6;border-color:transparent}
 .task.done .title{text-decoration:line-through}
-.check{width:24px;height:24px;margin-top:0;accent-color:var(--done);cursor:pointer}
+.check{width:34px;height:34px;margin:0;accent-color:var(--done);cursor:pointer}
 .main{min-width:0}
-.title{font-weight:500;overflow-wrap:anywhere}
-.meta{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:5px;font-size:12.5px;color:var(--muted)}
-.meta .who{font-weight:600;color:var(--fg)}
+.title{font-weight:600;font-size:18px;line-height:1.3;overflow-wrap:anywhere}
+.meta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:4px;font-size:14px;color:var(--muted)}
+.meta .who{font-weight:700;color:var(--accent)}
 .meta .due{font-variant-numeric:tabular-nums}
-.meta .due.late{color:var(--late);font-weight:600}
+.meta .due.late{color:var(--late);font-weight:700}
 .meta .note{width:100%;white-space:pre-wrap}
-.edit{background:none;border:0;color:var(--muted);font:inherit;font-size:12px;cursor:pointer;padding:2px 4px;text-transform:uppercase;letter-spacing:.06em}
+.edit{background:none;border:2px solid var(--line);border-radius:999px;width:44px;height:44px;color:var(--muted);font-size:18px;cursor:pointer;padding:0}
 
 form.card{background:var(--card);border:1px solid var(--line);border-radius:6px;padding:12px;display:grid;gap:8px;margin-top:8px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:grid;gap:3px}
-input,select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:8px 10px;width:100%;min-width:0}
-textarea{resize:vertical;min-height:56px}
+input,select,textarea{font:inherit;font-size:17px;color:var(--fg);background:var(--bg);border:2px solid var(--line);border-radius:6px;padding:10px 12px;width:100%;min-width:0;min-height:46px}
+textarea{resize:vertical;min-height:64px}
 .actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
-.btn{font:inherit;font-weight:600;border-radius:4px;padding:9px 16px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--fg)}
+.btn{font:inherit;font-size:16px;font-weight:600;border-radius:6px;padding:11px 18px;cursor:pointer;border:2px solid var(--line);background:transparent;color:var(--fg);min-height:46px}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.danger{color:var(--late);margin-right:auto}
 .btn:disabled{opacity:.5;cursor:default}
@@ -105,12 +115,13 @@ textarea{resize:vertical;min-height:56px}
 
   <div class="weather" id="weather" aria-label="Previsão do tempo na Liberdade"></div>
   <div class="weather-note" id="weather-note">Carregando previsão para a Liberdade…</div>
+  <div id="hourly" class="hourly" hidden></div>
 
   <div class="filters" role="group" aria-label="Filtro">
-    <button class="chip" data-f="pend" aria-pressed="true">Pendentes</button>
-    <button class="chip" data-f="all" aria-pressed="false">Todas</button>
+    <button class="chip" data-f="pend" aria-pressed="true">A fazer</button>
     <button class="chip" data-f="done" aria-pressed="false">Feitas</button>
-    <button class="me" id="me-btn" type="button">Quem sou eu?</button>
+    <button class="chip" data-f="all" aria-pressed="false">Todas</button>
+    <button class="me" id="me-btn" type="button">👤 Seu nome</button>
   </div>
 
   <div id="status" class="status"></div>
@@ -128,7 +139,7 @@ textarea{resize:vertical;min-height:56px}
         <option>Área externa</option><option>Interno / acabamento</option><option>Hidráulica</option><option>Equipamentos</option><option>Outros</option>
       </select></label>
       <label>Responsável<select name="owner">
-        <option value="">—</option><option>André</option><option>Andrew</option><option>Filipe</option><option>Empreiteiro</option>
+        <option value="">—</option><option>Miguel</option><option>Zé Carlos</option><option>Leandro</option><option>Ajudante</option><option>Outro</option>
       </select></label>
     </div>
     <div class="row">
@@ -168,7 +179,7 @@ textarea{resize:vertical;min-height:56px}
   const fmtTime=iso=>{if(!iso)return"";const d=new Date(iso);return d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit"})+" "+d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})};
 
   function setStatus(msg,err){statusEl.textContent=msg||"";statusEl.className="status"+(err?" err":"")}
-  function updateMe(){$("#me-btn").textContent=me?("Você: "+me):"Quem sou eu?"}
+  function updateMe(){$("#me-btn").textContent=me?("👤 "+me):"👤 Seu nome"}
 
   /* ---------- dados ---------- */
   async function load(quiet){
@@ -244,7 +255,7 @@ textarea{resize:vertical;min-height:56px}
     if(t.done&&t.doneAt){const s=document.createElement("span");s.textContent="feito "+fmt(t.doneAt)+(t.by?" por "+t.by:"");meta.appendChild(s)}
     if(t.note){const s=document.createElement("span");s.className="note";s.textContent=t.note;meta.appendChild(s)}
     if(meta.childNodes.length)main.appendChild(meta);
-    const ed=document.createElement("button");ed.className="edit";ed.type="button";ed.textContent="editar";
+    const ed=document.createElement("button");ed.className="edit";ed.type="button";ed.textContent="✏️";ed.setAttribute("aria-label","Editar: "+t.title);
     ed.addEventListener("click",()=>showForm(t,el));
     el.append(cb,main,ed);return el;
   }
@@ -287,24 +298,48 @@ textarea{resize:vertical;min-height:56px}
 
   /* ---------- tempo (Open-Meteo, Liberdade/SP) ---------- */
   const WMO={0:"☀️",1:"🌤️",2:"⛅",3:"☁️",45:"🌫️",48:"🌫️",51:"🌦️",53:"🌦️",55:"🌧️",61:"🌧️",63:"🌧️",65:"🌧️",80:"🌦️",81:"🌧️",82:"⛈️",95:"⛈️",96:"⛈️",99:"⛈️"};
+  const DOW=["dom","seg","ter","qua","qui","sex","sáb"];
+  const RAIN_H=p=>p.prob>=50||p.mm>=0.5;   // hora com chuva provável
+  function windows(hours){               // [{h,prob,mm}] -> "13h–18h, 21h–23h"
+    const w=[];let cur=null;
+    for(const p of hours){
+      if(RAIN_H(p)){if(cur&&cur.end===p.h-1)cur.end=p.h;else{cur={start:p.h,end:p.h};w.push(cur)}}
+    }
+    return w.map(x=>x.start===x.end?`${x.start}h`:`${x.start}h–${x.end+1}h`);
+  }
+  let hourlyByDay={},openDay=null;
   async function weather(){
     const el=$("#weather"),note=$("#weather-note");
     try{
-      const u="https://api.open-meteo.com/v1/forecast?latitude=-23.558&longitude=-46.635&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&timezone=America%2FSao_Paulo&forecast_days=6";
-      const r=await fetch(u);if(!r.ok)throw 0;const d=(await r.json()).daily;
+      const u="https://api.open-meteo.com/v1/forecast?latitude=-23.558&longitude=-46.635&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum&hourly=precipitation_probability,precipitation&timezone=America%2FSao_Paulo&forecast_days=6";
+      const r=await fetch(u);if(!r.ok)throw 0;const j=await r.json();const d=j.daily,h=j.hourly;
+      hourlyByDay={};
+      h.time.forEach((t,i)=>{const day=t.slice(0,10),hr=+t.slice(11,13);(hourlyByDay[day]??=[]).push({h:hr,prob:h.precipitation_probability[i]??0,mm:h.precipitation[i]??0})});
       el.innerHTML="";
-      const names=["dom","seg","ter","qua","qui","sáb"];
       d.time.forEach((day,i)=>{
         const prob=d.precipitation_probability_max[i]??0,mm=d.precipitation_sum[i]??0;
         const rain=prob>=60||mm>=5;
-        const c=document.createElement("div");c.className="day"+(rain?" rain":"");
+        const win=windows(hourlyByDay[day]||[]);
+        const c=document.createElement("button");c.type="button";c.className="day"+(rain?" rain":"");c.dataset.day=day;
+        c.setAttribute("aria-label",`${fmt(day)}: ${prob}% de chance de chuva. Toque para ver por hora.`);
         const dt=new Date(day+"T12:00:00");
-        c.innerHTML=`<div class="d">${i===0?"hoje":names[dt.getDay()]} ${fmt(day)}</div><div class="i">${WMO[d.weather_code[i]]||"🌡️"}</div><div class="t">${Math.round(d.temperature_2m_max[i])}° <span style="color:var(--muted);font-weight:400">${Math.round(d.temperature_2m_min[i])}°</span></div><div class="p">${prob}% chuva${mm>=1?" · "+Math.round(mm)+"mm":""}</div>`;
+        c.innerHTML=`<div class="d">${i===0?"hoje":DOW[dt.getDay()]} ${fmt(day)}</div><div class="i">${WMO[d.weather_code[i]]||"🌡️"}</div><div class="t">${Math.round(d.temperature_2m_max[i])}° <span style="color:var(--muted);font-weight:400">${Math.round(d.temperature_2m_min[i])}°</span></div><div class="p">${prob}% chuva${mm>=1?" · "+Math.round(mm)+"mm":""}</div><div class="w">${win.length?win.slice(0,2).join(", "):"sem janela de chuva"}</div>`;
+        c.addEventListener("click",()=>toggleHourly(day));
         el.appendChild(c);
       });
       const rainy=d.time.filter((_,i)=>(d.precipitation_probability_max[i]??0)>=60||(d.precipitation_sum[i]??0)>=5);
-      note.textContent=rainy.length?"Chuva provável: "+rainy.map(fmt).join(", ")+". Vale segurar serviço externo nesses dias.":"Sem chuva relevante nos próximos dias.";
+      note.textContent=(rainy.length?"Chuva provável: "+rainy.map(fmt).join(", ")+". ":"Sem chuva relevante nos próximos dias. ")+"Toque num dia pra ver hora a hora.";
+      if(openDay)toggleHourly(openDay,true);
     }catch(e){note.textContent="Previsão indisponível no momento."}
+  }
+  function toggleHourly(day,keep){
+    const box=$("#hourly");
+    if(openDay===day&&!keep){box.hidden=true;openDay=null;document.querySelectorAll(".day").forEach(x=>x.classList.remove("open"));return}
+    openDay=day;document.querySelectorAll(".day").forEach(x=>x.classList.toggle("open",x.dataset.day===day));
+    const hrs=hourlyByDay[day]||[];const dt=new Date(day+"T12:00:00");
+    const win=windows(hrs);
+    box.innerHTML=`<div class="hh"><b>${DOW[dt.getDay()]} ${fmt(day)}</b> · ${win.length?"chuva provável: "+win.join(", "):"sem chuva provável"}</div><div class="bars">${hrs.map(p=>`<div class="bar${RAIN_H(p)?" rain":""}" title="${p.h}h: ${p.prob}%${p.mm>=0.1?" · "+p.mm.toFixed(1)+"mm":""}"><i style="height:${Math.max(4,p.prob)}%"></i><span>${p.h%3===0?p.h+"h":""}</span></div>`).join("")}</div><div class="hl">Altura da barra = chance de chuva naquela hora. Azul = acima de 50%.</div>`;
+    box.hidden=false;
   }
 
   load();weather();
