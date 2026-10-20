@@ -389,7 +389,7 @@ textarea{resize:vertical;min-height:64px}
       if(dirty||timer)await persist();
     };
     if(t)anchor.after(f);else $("#form-slot").appendChild(f);
-    openForm=f;f.title.focus({preventScroll:true});f.scrollIntoView({block:"nearest"});
+    openForm=f;if(!t)f.title.focus({preventScroll:true});f.scrollIntoView({block:"nearest"});
   }
   // toque fora do formulário fecha (e salva)
   document.addEventListener("pointerdown",e=>{
